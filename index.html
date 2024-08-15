@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math to Bitcoin Game</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">Math to Bitcoin Game</h1>
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <div id="question" class="mb-3"></div>
+                <input type="number" id="answer" class="form-control mb-3" placeholder="Your answer">
+                <button id="submit" class="btn btn-primary mb-3">Submit Answer</button>
+                <div id="result" class="mb-3"></div>
+                <div id="score" class="mb-3">Score: 0</div>
+                <div id="bitcoin" class="mb-3">Bitcoin: 0</div>
+                <button id="withdraw" class="btn btn-success">Withdraw to PayPal</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const question = document.getElementById('question');
+        const answerInput = document.getElementById('answer');
+        const submitButton = document.getElementById('submit');
+        const result = document.getElementById('result');
+        const scoreDisplay = document.getElementById('score');
+        const bitcoinDisplay = document.getElementById('bitcoin');
+        const withdrawButton = document.getElementById('withdraw');
+
+        let score = 0;
+        let bitcoin = 0;
+        let correctAnswer;
+
+        // Load saved progress
+        function loadProgress() {
+            const savedScore = localStorage.getItem('mathGameScore');
+            const savedBitcoin = localStorage.getItem('mathGameBitcoin');
+            
+            if (savedScore !== null) {
+                score = parseInt(savedScore);
+                scoreDisplay.textContent = `Score: ${score}`;
+            }
+            
+            if (savedBitcoin !== null) {
+                bitcoin = parseFloat(savedBitcoin);
+                bitcoinDisplay.textContent = `Bitcoin: ${bitcoin.toFixed(4)}`;
+            }
+        }
+
+        // Save progress
+        function saveProgress() {
+            localStorage.setItem('mathGameScore', score);
+            localStorage.setItem('mathGameBitcoin', bitcoin);
+        }
+
+        function generateQuestion() {
+            const num1 = Math.floor(Math.random() * 10) + 1;
+            const num2 = Math.floor(Math.random() * 10) + 1;
+            question.textContent = `What is ${num1} + ${num2}?`;
+            return num1 + num2;
+        }
+
+        function updateDisplay() {
+            scoreDisplay.textContent = `Score: ${score}`;
+            bitcoinDisplay.textContent = `Bitcoin: ${bitcoin.toFixed(4)}`;
+        }
+
+        function init() {
+            loadProgress();
+            correctAnswer = generateQuestion();
+        }
+
+        submitButton.addEventListener('click', () => {
+            const userAnswer = parseInt(answerInput.value);
+            if (userAnswer === correctAnswer) {
+                result.textContent = 'Correct!';
+                score += 10;
+                bitcoin += 0.0001;
+            } else {
+                result.textContent = 'Incorrect. Try again!';
+            }
+            updateDisplay();
+            saveProgress();
+            answerInput.value = '';
+            correctAnswer = generateQuestion();
+        });
+
+        withdrawButton.addEventListener('click', () => {
+            mockPayPalWithdraw(bitcoin);
+        });
+
+        function mockPayPalWithdraw(amount) {
+            setTimeout(() => {
+                alert(`Withdrawn ${amount.toFixed(4)} BTC to PayPal successfully!`);
+                bitcoin = 0;
+                updateDisplay();
+                saveProgress();
+            }, 1500);
+        }
+
+        // Save progress when leaving the page
+        window.addEventListener('beforeunload', saveProgress);
+
+        // Initialize the game
+        init();
+    </script>
+</body>
+</html>
